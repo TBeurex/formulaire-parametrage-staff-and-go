@@ -183,6 +183,52 @@ const MODULE_TT = {
 function CC({v}){if(v===true)return<span className="tc">✓</span>;if(v===false)return<span className="tx">✗</span>;return<span className="tn">{v}</span>}
 function TT({rows}){return<span className="tw"><span className="ti">i</span><div className="tb"><table className="ttt"><thead><tr><th>Fonctionnalité</th><th>Essentiel</th><th>Avancé</th></tr></thead><tbody>{rows.map((r,i)=><tr key={i}><td>{r[0]}</td><td><CC v={r[1]}/></td><td><CC v={r[2]}/></td></tr>)}</tbody></table></div></span>}
 
+// ─── HELPER COMPONENTS (outside App to prevent re-creation) ───
+const ModeSelector = ({value, onChange, showDisable, ttKey}) => (
+  <div className="mode-selector" style={{alignItems:"center"}}>
+    {showDisable && <button className={`mode-btn ${value==="Désactiver"?"disabled-mode":""}`} onClick={()=>onChange("Désactiver")}>Désactiver</button>}
+    <button className={`mode-btn ${value==="Essentiel"?"active":""}`} onClick={()=>onChange("Essentiel")}>Essentiel</button>
+    <button className={`mode-btn ${value==="Avancé"?"active":""}`} onClick={()=>onChange("Avancé")}>Avancé</button>
+    {ttKey && MODULE_TT[ttKey] && <TT rows={MODULE_TT[ttKey]}/>}
+  </div>
+);
+
+const Toggle = ({value, onChange, label, desc}) => (
+  <div className="toggle-wrap">
+    <button className={`toggle ${value?"on":"off"}`} onClick={()=>onChange(!value)}>
+      <div className="toggle-knob"/>
+    </button>
+    <div>
+      <div className="toggle-label">{label}</div>
+      {desc && <div className="toggle-desc">{desc}</div>}
+    </div>
+  </div>
+);
+
+const RadioGroup = ({value, onChange, options}) => (
+  <div className="radio-group">
+    {options.map(o => (
+      <div key={o} className={`radio-item ${value===o?"selected":""}`} onClick={()=>onChange(o)}>
+        <div className="radio-dot"><div className="radio-dot-inner"/></div>
+        <span className="radio-label">{o}</span>
+      </div>
+    ))}
+  </div>
+);
+
+const Field = ({label, required, children}) => (
+  <div className="field">
+    {label && <label className={`label ${required?"label-required":""}`}>{label}</label>}
+    {children}
+  </div>
+);
+
+const ReqBadge = ({type}) => {
+  if(type==="both") return <span className="req-badge req-both">Essentiel & Avancé</span>;
+  if(type==="a") return <span className="req-badge req-a">Avancé uniquement</span>;
+  return <span className="req-badge req-e">Essentiel</span>;
+};
+
 function App() {
   const [tab, setTab] = useState("infos");
   const [visited, setVisited] = useState(new Set(["infos"]));
@@ -286,52 +332,6 @@ function App() {
 
   const handlePrint = () => {
     window.print();
-  };
-
-  // ─── HELPER COMPONENTS ───
-  const ModeSelector = ({value, onChange, showDisable, ttKey}) => (
-    <div className="mode-selector" style={{alignItems:"center"}}>
-      {showDisable && <button className={`mode-btn ${value==="Désactiver"?"disabled-mode":""}`} onClick={()=>onChange("Désactiver")}>Désactiver</button>}
-      <button className={`mode-btn ${value==="Essentiel"?"active":""}`} onClick={()=>onChange("Essentiel")}>Essentiel</button>
-      <button className={`mode-btn ${value==="Avancé"?"active":""}`} onClick={()=>onChange("Avancé")}>Avancé</button>
-      {ttKey && MODULE_TT[ttKey] && <TT rows={MODULE_TT[ttKey]}/>}
-    </div>
-  );
-
-  const Toggle = ({value, onChange, label, desc}) => (
-    <div className="toggle-wrap">
-      <button className={`toggle ${value?"on":"off"}`} onClick={()=>onChange(!value)}>
-        <div className="toggle-knob"/>
-      </button>
-      <div>
-        <div className="toggle-label">{label}</div>
-        {desc && <div className="toggle-desc">{desc}</div>}
-      </div>
-    </div>
-  );
-
-  const RadioGroup = ({value, onChange, options}) => (
-    <div className="radio-group">
-      {options.map(o => (
-        <div key={o} className={`radio-item ${value===o?"selected":""}`} onClick={()=>onChange(o)}>
-          <div className="radio-dot"><div className="radio-dot-inner"/></div>
-          <span className="radio-label">{o}</span>
-        </div>
-      ))}
-    </div>
-  );
-
-  const Field = ({label, required, children}) => (
-    <div className="field">
-      {label && <label className={`label ${required?"label-required":""}`}>{label}</label>}
-      {children}
-    </div>
-  );
-
-  const ReqBadge = ({type}) => {
-    if(type==="both") return <span className="req-badge req-both">Essentiel & Avancé</span>;
-    if(type==="a") return <span className="req-badge req-a">Avancé uniquement</span>;
-    return <span className="req-badge req-e">Essentiel</span>;
   };
 
   // ─── TAB: INFOS ───
